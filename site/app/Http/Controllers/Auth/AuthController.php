@@ -76,6 +76,7 @@ class AuthController extends Controller
       $user->tagline = $data->user['headline'];
       $user->avatar_url = $data->avatar_original;
       $user->save();
+      \Auth::login($user);
       return redirect()->route('home')->with('success', "Welcome back, {$user->firstname}");
     }
 }

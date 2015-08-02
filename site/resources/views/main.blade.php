@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
 
-    <title>Built By Freelancers</title>
+    <title>{{{env('APP_NAME')}}}</title>
 
     <link href="/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/components/fontawesome/css/font-awesome.min.css" rel="stylesheet">
@@ -36,12 +36,24 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Built By Freelancers</a>
+          <a class="navbar-brand" href="/">{{{env('APP_NAME')}}}</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-          <div class='navbar-right navbar-btn'>
-            <a href='/auth/linkedin' class=' btn btn-success'><i class="fa fa-linkedin-square"></i> Sign In</a>
-          </div>
+          <ul class="nav navbar-nav">
+            <li><a href="#">Find Work</a></li>
+            <li><a href="#">Post a Job</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            @if(Auth::user())
+              <li><a href="/profile">Welcome, {{Auth::user()->firstname}}</a></li>
+              <li><a href="/logout">Logout</a></li>
+              
+              
+            @else
+              <li><a href='/auth/linkedin'><i class="fa fa-linkedin-square"></i> Sign In</a></li>
+              
+            @endif
+          </ul>
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
@@ -61,7 +73,7 @@
             <hr>
 
             <footer>
-              <p>&copy; Company 2014</p>
+              <p>&copy; {{{env('APP_NAME')}}} {{date('Y')}}</p>
             </footer>
       </div>
     </div>

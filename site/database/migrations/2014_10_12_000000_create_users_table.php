@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('country');
             $table->string('location');
             $table->string('avatar_url');
+            $table->string('remember_token');
             $table->string('email')->unique();
             $table->timestamps();
             $table->index('linkedin_id');

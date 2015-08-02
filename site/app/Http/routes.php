@@ -15,6 +15,10 @@ Route::get('/', ['as'=>'home', function () {
     return view('welcome');
 }]);
 
+Route::get('/logout', function() {
+  Auth::logout();
+  return redirect()->route('home')->with('success', 'You have been logged out.');
+});
 
 Route::get('auth/linkedin', 'Auth\AuthController@redirectToProvider');
 Route::get('auth/linkedin/callback', 'Auth\AuthController@handleProviderCallback');
