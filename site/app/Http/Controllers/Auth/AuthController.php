@@ -2,64 +2,80 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Socialite;
+use Illuminate\Routing\Controller;
 use App\User;
-use Validator;
-use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\ThrottlesLogins;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
 class AuthController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Registration & Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users, as well as the
-    | authentication of existing users. By default, this controller uses
-    | a simple trait to add these behaviors. Why don't you explore it?
-    |
-    */
-
-    use AuthenticatesAndRegistersUsers, ThrottlesLogins;
-
     /**
-     * Create a new authentication controller instance.
+     * Redirect the user to the GitHub authentication page.
      *
-     * @return void
+     * @return Response
      */
-    public function __construct()
+    public function redirectToProvider()
     {
-        $this->middleware('guest', ['except' => 'getLogout']);
+        return Socialite::driver('linkedin')->redirect();
     }
 
     /**
-     * Get a validator for an incoming registration request.
+     * Obtain the user information from GitHub.
      *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
+     * @return Response
      */
-    protected function validator(array $data)
+    public function handleProviderCallback()
     {
-        return Validator::make($data, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:6',
-        ]);
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return User
-     */
-    protected function create(array $data)
-    {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
+      /*
+      Sample of what LinkedIn returns
+      ---------------------
+      User {#149 ▼
+        +token: "AQUmcn8FTAYmj_-IkAPzcqCxhZRNR-woIX9-fH4JEvCzb7xICTy2uY3JXXiq1co8MFUxxiBsk3IJIeE2kTlH5mP6fRtBnQConCaX2F2BB6fOtbswLmcSio8M1lEo67Nrt7yXbjJueAlz4wPt4T5knXZjV95uPcP0q2XEQG5Jw0zRUhNLcKY"
+        +id: "nZmvBPf-nh"
+        +nickname: null
+        +name: "Ben Allfree"
+        +email: "ben@benallfree.com"
+        +avatar: "https://media.licdn.com/mpr/mprx/0_NFyu8TZPvM4g9_tqnbS18GglvUyPN_tqn5e18GxTEZe_wF5N43u8aCI7U1puckP4vXYt75Tc0GEr"
+        +"user": array:11 [▼
+          "emailAddress" => "ben@benallfree.com"
+          "firstName" => "Ben"
+          "formattedName" => "Ben Allfree"
+          "headline" => "I turn ideas into working software."
+          "id" => "nZmvBPf-nh"
+          "industry" => "Computer Software"
+          "lastName" => "Allfree"
+          "location" => array:2 [▼
+            "country" => array:1 [▼
+              "code" => "us"
+            ]
+            "name" => "Reno, Nevada Area"
+          ]
+          "pictureUrl" => "https://media.licdn.com/mpr/mprx/0_NFyu8TZPvM4g9_tqnbS18GglvUyPN_tqn5e18GxTEZe_wF5N43u8aCI7U1puckP4vXYt75Tc0GEr"
+          "pictureUrls" => array:2 [▼
+            "_total" => 1
+            "values" => array:1 [▼
+              0 => "https://media.licdn.com/mpr/mprx/0_Y7yIKlXzoK8T6SZtx7PLnrvBolli3aZtxmGQnKEMXzr86fopjxjFqnbjkJ-"
+            ]
+          ]
+          "publicProfileUrl" => "https://www.linkedin.com/in/benallfree"
+        ]
+        +"avatar_original": "https://media.licdn.com/mpr/mprx/0_Y7yIKlXzoK8T6SZtx7PLnrvBolli3aZtxmGQnKEMXzr86fopjxjFqnbjkJ-"
+      }      
+      */
+      $data = Socialite::driver('linkedin')->user();
+      $user = User::whereLinkedinId($data->id)->first();
+      if(!$user)
+      {
+        $user = new User();
+        $user->linkedin_id = $data->id;
+      }
+      $user->email = $data->email;
+      $user->firstname = $data->user['firstName'];
+      $user->lastname = $data->user['lastName'];
+      $user->country = $data->user['location']['country']['code'];
+      $user->location = $data->user['location']['name'];
+      $user->tagline = $data->user['headline'];
+      $user->avatar_url = $data->avatar_original;
+      $user->save();
+      return redirect()->route('home')->with('success', "Welcome back, {$user->firstname}");
     }
 }
