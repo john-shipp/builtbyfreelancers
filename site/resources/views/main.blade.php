@@ -12,11 +12,8 @@
 
     <title>{{{env('APP_NAME')}}}</title>
 
-    <link href="/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/components/fontawesome/css/font-awesome.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="/css/app.css" rel="stylesheet">
+    <link href="{{ asset('/css/app.css') }}" rel="stylesheet">
+    <script src="{{ asset('/js/vendor.js') }}"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -26,8 +23,7 @@
   </head>
 
   <body>
-
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -45,7 +41,7 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             @if(Auth::user())
-              <li><a href="/profile">Welcome, {{Auth::user()->firstname}}</a></li>
+              <li><a class='image' href="/profile"><img src="{{Auth::user()->avatar_url}}" /></a></li>
               <li><a href="/logout">Logout</a></li>
               
               
@@ -77,7 +73,5 @@
             </footer>
       </div>
     </div>
-    <script src="/components/jquery/dist/jquery.min.js"></script>
-    <script src="/components/bootstrap/dist/js/bootstrap.min.js"></script>
   </body>
 </html>
